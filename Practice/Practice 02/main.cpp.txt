@@ -1,0 +1,143 @@
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <limits>
+
+const std::string BALANCE_FILE = "account_balance.txt";
+const double INITIAL_BALANCE = 100.00;
+
+// Function declarations
+double readBalanceFromFile();
+void writeBalanceToFile(double balance);
+void checkBalance(double balance);
+double deposit(double balance);
+double withdraw(double balance);
+void clearInput();
+
+int main() {
+    double balance = 0.0;
+
+    std::ifstream infile(BALANCE_FILE);
+    if (!infile) {
+        std::cout << "Welcome to Your Bank Account!" << std::endl;
+        std::cout << "Initializing account with $" << std::fixed << std::setprecision(2) << INITIAL_BALANCE << "...\n" << std::endl;
+        balance = INITIAL_BALANCE;
+        writeBalanceToFile(balance);
+    } else {
+        balance = readBalanceFromFile();
+        std::cout << "Welcome to Your Bank Account!" << std::endl;
+        std::cout << "Your current balance is: $" << std::fixed << std::setprecision(2) << balance << "\n" << std::endl;
+    }
+
+    int choice;
+    bool running = true;
+
+    while (running) {
+        std::cout << "Menu:\n";
+        std::cout << "1. Check Balance\n";
+        std::cout << "2. Deposit Money\n";
+        std::cout << "3. Withdraw Money\n";
+        std::cout << "4. Exit\n\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+
+        if (std::cin.fail()) {
+            std::cout << "Invalid input. Please enter a number between 1 and 4.\n" << std::endl;
+            clearInput();
+            continue;
+        }
+
+        switch (choice) {
+            case 1:
+                checkBalance(balance);
+                break;
+            case 2:
+                balance = deposit(balance);
+                writeBalanceToFile(balance);
+                break;
+            case 3:
+                balance = withdraw(balance);
+                writeBalanceToFile(balance);
+                break;
+            case 4:
+                running = false;
+                std::cout << "Thank you for using Your Bank Account. Goodbye!" << std::endl;
+                break;
+            default:
+                std::cout << "Invalid choice. Please choose a valid option.\n" << std::endl;
+        }
+    }
+
+    return 0;
+}
+
+// Reads balance from file
+double readBalanceFromFile() {
+    std::ifstream file(BALANCE_FILE);
+    double balance;
+    if (!(file >> balance)) {
+        std::cerr << "Error: Failed to read balance from file." << std::endl;
+        exit(1);
+    }
+    return balance;
+}
+
+// Writes balance to file
+void writeBalanceToFile(double balance) {
+    std::ofstream file(BALANCE_FILE);
+    if (!file) {
+        std::cerr << "Error: Unable to write to balance file." << std::endl;
+        exit(1);
+    }
+    file << std::fixed << std::setprecision(2) << balance;
+}
+
+// Prints current balance
+void checkBalance(double balance) {
+    std::cout << "Your current balance is: $" << std::fixed << std::setprecision(2) << balance << "\n" << std::endl;
+}
+
+// Handles deposit
+double deposit(double balance) {
+    double amount;
+    std::cout << "Enter deposit amount: ";
+    std::cin >> amount;
+
+    if (std::cin.fail() || amount <= 0) {
+        std::cout << "Error: Deposit amount must be a positive number.\n" << std::endl;
+        clearInput();
+        return balance;
+    }
+
+    balance += amount;
+    std::cout << "Deposit successful. Your new balance is: $" << std::fixed << std::setprecision(2) << balance << "\n" << std::endl;
+    return balance;
+}
+
+// Handles withdrawal
+double withdraw(double balance) {
+    double amount;
+    std::cout << "Enter withdrawal amount: ";
+    std::cin >> amount;
+
+    if (std::cin.fail() || amount <= 0) {
+        std::cout << "Error: Withdrawal amount must be a positive number.\n" << std::endl;
+        clearInput();
+        return balance;
+    }
+
+    if (amount > balance) {
+        std::cout << "Error: Insufficient funds. Your balance is $" << std::fixed << std::setprecision(2) << balance << ".\n" << std::endl;
+        return balance;
+    }
+
+    balance -= amount;
+    std::cout << "Withdrawal successful. Your new balance is: $" << std::fixed << std::setprecision(2) << balance << "\n" << std::endl;
+    return balance;
+}
+
+// Clears bad input
+void clearInput() {
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
