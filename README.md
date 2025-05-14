@@ -1,4 +1,4 @@
-# -cpsc2376-coleman
-Hello World!
+# cpsc2376-coleman
+Hello, World!
 
 
